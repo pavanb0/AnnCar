@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      outline: none;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  <script>
+    function sendCommand(command) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "http://192.168.0.103/?State=" + command, true);
+      xhttp.send();
+      setTimeout(() => {
+        xhttp.open("GET", "http://192.168.0.103/?State=" + "S", true);
+        xhttp.send();
+
+      }, 200)
+
+    }
+    document.addEventListener("keydown", function(event) {
+      // Your code here
+      // 'event' contains information about the key event, such as the key code
+      if(event.key=='w'){
+        sendCommand("F")
+      }
+      if(event.key=='a'){
+        sendCommand("R")
+      }
+      if(event.key=='d'){
+        sendCommand("L")
+      }
+      if(event.key=='s'){
+        sendCommand("B")
+      }
+    });
+  </script>
+</head>
+
+<body>
+
+  <h2> Robot Control</h2>
+
+  <button class="button" onclick="sendCommand('F')">Forward</button>
+  <button class="button" onclick="sendCommand('B')">Backward</button>
+  <button class="button" onclick="sendCommand('L')">Left</button>
+  <button class="button" onclick="sendCommand('R')">Right</button>
+  <br>
+  <button class="button" onclick="sendCommand('I')">Forward Right</button>
+  <button class="button" onclick="sendCommand('G')">Forward Left</button>
+  <button class="button" onclick="sendCommand('J')">Backward Right</button>
+  <button class="button" onclick="sendCommand('H')">Backward Left</button>
+  <br>
+  <button class="button" onclick="sendCommand('S')">Stop</button>
+  <br><br>
+  <label for="speed">Speed:</label>
+  <input type="number" id="speed" name="speed" min="0" max="1023" step="10" value="800">
+  <button class="button" onclick="sendCommand(document.getElementById('speed').value)">Set Speed</button>
+
+</body>
+
+</html>

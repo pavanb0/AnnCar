@@ -19,11 +19,11 @@
 Servo s1;
 
 String command;
-int speedCar = 800;
+int speedCar = 200;
 int speed_Coeff = 3;
-
+int move_delay = 100;
 const char* ssid = "Ankita-Pawan";
-const char* password = "";
+const char* password = "arunbagwem074853";
 
 ESP8266WebServer server(80);
 long duration;
@@ -172,6 +172,104 @@ void stopRobot() {
   analogWrite(ENB, speedCar);
 }
 
+
+
+
+void moveDir(int angle){
+  if (angle == 20){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 255);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 20);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+
+  }
+  if (angle == 30){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 255);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 66);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 40){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 255);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 129);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 50){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 255);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 192 );
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 60){     
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 255);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 255);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+      }
+  if (angle == 70){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 192);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 255);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 80){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 129);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 255);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 90){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 66);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 255);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+  if (angle == 100){
+      analogWrite(IN_1, LOW);
+      analogWrite(IN_2, 20);
+      analogWrite(ENA, 255);
+      analogWrite(IN_3, LOW);
+      analogWrite(IN_4, 255);
+      analogWrite(ENB, 255);
+      delay(move_delay);
+      stopRobot();
+  }
+}
+
+
 void moveServo(){
     if (millis() - servoUpdateTime >= servoUpdateInterval) {
     s1.write(servoPosition);
@@ -197,6 +295,23 @@ void loop() {
 
   command = server.arg("State");
   if (command == "F") goAhead();
+  else if (command == "20") moveDir(20); //far left
+  else if (command == "30") moveDir(30);
+  else if (command == "40") moveDir(40);
+  else if (command == "50") moveDir(50);
+  else if (command == "60") moveDir(60); //center
+  else if (command == "70") moveDir(70);
+  else if (command == "80") moveDir(80);
+  else if (command == "90") moveDir(90);
+  else if (command == "100") moveDir(100); //far right
+  else if (command == "0") speedCar = 0;
+  else if (command == "1") speedCar = 25;
+  else if (command == "2") speedCar = 50;
+  else if (command == "3") speedCar = 150;
+  else if (command == "4") speedCar = 200;
+  else if (command == "9") speedCar = 255;
+  else if (command == "S") stopRobot();
+
   else if (command == "B") goBack();
   else if (command == "L") goLeft();
   else if (command == "R") goRight();
@@ -204,17 +319,6 @@ void loop() {
   else if (command == "G") goAheadLeft();
   else if (command == "J") goBackRight();
   else if (command == "H") goBackLeft();
-  else if (command == "0") speedCar = 400;
-  else if (command == "1") speedCar = 470;
-  else if (command == "2") speedCar = 540;
-  else if (command == "3") speedCar = 610;
-  else if (command == "4") speedCar = 680;
-  else if (command == "5") speedCar = 750;
-  else if (command == "6") speedCar = 820;
-  else if (command == "7") speedCar = 890;
-  else if (command == "8") speedCar = 960;
-  else if (command == "9") speedCar = 1023;
-  else if (command == "S") stopRobot();
 
   // moveServo();
 }

@@ -23,7 +23,7 @@ int speedCar = 800;
 int speed_Coeff = 3;
 
 const char* ssid = "Ankita-Pawan";
-const char* password = "arunbagwem074853";
+const char* password = "";
 
 ESP8266WebServer server(80);
 long duration;

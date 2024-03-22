@@ -32,26 +32,22 @@
   <script>
     function sendCommand(command) {
       var xhttp = new XMLHttpRequest();
-      xhttp.open("GET", "http://192.168.0.103/?State=" + command, true);
+      xhttp.open("GET", "http://192.168.0.106/?State=" + command, true);
       xhttp.send();
-      setTimeout(() => {
-        xhttp.open("GET", "http://192.168.0.103/?State=" + "S", true);
-        xhttp.send();
 
-      }, 200)
 
     }
     document.addEventListener("keydown", function(event) {
       // Your code here
       // 'event' contains information about the key event, such as the key code
       if(event.key=='w'){
-        sendCommand("F")
+        sendCommand("60")
       }
       if(event.key=='a'){
-        sendCommand("R")
+        sendCommand("40")
       }
       if(event.key=='d'){
-        sendCommand("L")
+        sendCommand("70")
       }
       if(event.key=='s'){
         sendCommand("B")

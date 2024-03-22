@@ -1,52 +1,60 @@
+from keras.models import load_model
+import cv2
 import numpy as np
 
-# Activation functions
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+# Disable scientific notation for clarity
+np.set_printoptions(suppress=True)
 
-def sigmoid_derivative(x):
-    return x * (1 - x)
+# Load the model
+model = load_model("training\keras_model.h5", compile=False)
 
-# Neural Network class
-class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, output_size):
-        # Initialize weights and biases
-        self.weights_input_hidden = np.random.uniform(size=(input_size, hidden_size))
-        self.bias_hidden = np.zeros((1, hidden_size))
-        self.weights_hidden_output = np.random.uniform(size=(hidden_size, output_size))
-        self.bias_output = np.zeros((1, output_size))
+# Load the labels
+class_names = open("training\labels.txt", "r").readlines()
 
-    def forward(self, X):
-        self.hidden_layer_activation = sigmoid(np.dot(X, self.weights_input_hidden) + self.bias_hidden)
-        self.output = sigmoid(np.dot(self.hidden_layer_activation, self.weights_hidden_output) + self.bias_output)
-        return self.output
+# CAMERA can be 0 or 1 based on default camera of your computer
+camera = cv2.VideoCapture("http://192.168.0.100:8080/video")
 
-    def backward(self, X, y, learning_rate):
-        error = y - self.output
-        output_delta = error * sigmoid_derivative(self.output)
+frame_counter = 0  # Counter to track frames
 
-        hidden_layer_error = output_delta.dot(self.weights_hidden_output.T)
-        hidden_layer_delta = hidden_layer_error * sigmoid_derivative(self.hidden_layer_activation)
+while True:
+    # Grab the web camera's image.
+    ret, image = camera.read()
 
-        self.weights_hidden_output += self.hidden_layer_activation.T.dot(output_delta) * learning_rate
-        self.bias_output += np.sum(output_delta, axis=0, keepdims=True) * learning_rate
-        self.weights_input_hidden += X.T.dot(hidden_layer_delta) * learning_rate
-        self.bias_hidden += np.sum(hidden_layer_delta, axis=0, keepdims=True) * learning_rate
+    # Increment frame counter
+    frame_counter += 1
 
-    def train(self, X, y, epochs, learning_rate):
-        for epoch in range(epochs):
-            output = self.forward(X)
-            self.backward(X, y, learning_rate)
-            if epoch % 100 == 0:
-                loss = np.mean(np.square(y - output))
-                print(f"Epoch {epoch}, Loss: {loss}")
+    # Skip processing if it's an odd-numbered frame
+    if frame_counter % 2 != 0:
+        continue
 
-input_size = 640 * 480  # Adjust based on your input size
-hidden_size = 64        # Adjust based on your network complexity
-output_size = 1         # Adjust based on your output size
+    # Resize the raw image into (224-height,224-width) pixels
+    image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_AREA)
 
-X = np.random.rand(100, input_size)  # Example data
-y = np.random.rand(100, output_size) * 2 - 1  # Random values between -1 and 1
+    # Show the image in a window
+    cv2.imshow("Webcam Image", image)
 
-nn = NeuralNetwork(input_size, hidden_size, output_size)
-nn.train(X, y, epochs=1000, learning_rate=0.01)
+    # Make the image a numpy array and reshape it to the model's input shape.
+    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+
+    # Normalize the image array
+    image = (image / 127.5) - 1
+
+    # Predicts the model
+    prediction = model.predict(image)
+    index = np.argmax(prediction)
+    class_name = class_names[index]
+    confidence_score = prediction[0][index]
+
+    # Print prediction and confidence score
+    print("Class:", class_name[2:], end="")
+    print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
+
+    # Listen to the keyboard for presses.
+    keyboard_input = cv2.waitKey(1)
+
+    # 27 is the ASCII for the esc key on your keyboard.
+    if keyboard_input == 27:
+        break
+
+camera.release()
+cv2.destroyAllWindows()

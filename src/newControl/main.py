@@ -2,17 +2,20 @@ import math
 import time
 import cv2
 import numpy as np
-videoUrl = 'http://192.168.0.101:8080/video'
+import asyncio
+import aiohttp 
+videoUrl = 'http://192.168.0.100:8080/video'
+carUrl = 'http://192.168.0.104/?State='
 
 video = cv2.VideoCapture(videoUrl)
 video.set(cv2.CAP_PROP_FRAME_WIDTH,320) # set the width to 320 p
 video.set(cv2.CAP_PROP_FRAME_HEIGHT,240) # set the height to 240 p
-lastTime = 0 
-lastError = 0
 
-# PD constants
-Kp = 0.4
-Kd = Kp * 0.65
+async def steer_alvinn(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
+
 
 
 def convert_to_HSV(frame):
@@ -169,55 +172,65 @@ def display_heading_line(frame, steering_angle, line_color=(0, 0, 255), line_wid
 
     return heading_image
 
-num = 0 
 # The loop
-while True:
-    ret,frame = video.read()
-    frame = cv2.flip(frame, 1)
-    cv2.imshow("original",frame)
-    hsv = convert_to_HSV(frame)
-    edges = detect_edges(hsv)
-    roi = region_of_interest(edges)
-    line_segments = detect_line_segments(roi)
-    lane_lines = average_slope_intercept(frame,line_segments)
-    lane_lines_image = display_lines(frame,lane_lines)
-    steering_angle = get_steering_angle(frame, lane_lines)
-    if num%10 == 0:
-        print(steering_angle)
+async def main():
+    num = 0 
+    lastTime = 0 
+    lastError = 0
+
+    # PD constants
+    Kp = 0.4
+    Kd = Kp * 0.65
+
+    while True:
+        ret,frame = video.read()
+        frame = cv2.flip(frame, 1)
+        cv2.imshow("original",frame)
+        hsv = convert_to_HSV(frame)
+        edges = detect_edges(hsv)
+        roi = region_of_interest(edges)
+        line_segments = detect_line_segments(roi)
+        lane_lines = average_slope_intercept(frame,line_segments)
+        lane_lines_image = display_lines(frame,lane_lines)
+        steering_angle = get_steering_angle(frame, lane_lines)
+        if num%7 == 0:
+            print(steering_angle)
+            
         
-    num+=1
-    
-    
-    now = time.time() # current time variable
-    dt = now - lastTime
-    deviation = steering_angle - 90 # equivalent to angle_to_mid_deg variable
-    error = abs(deviation) 
+            
+            now = time.time() # current time variable
+            dt = now - lastTime
+            deviation = steering_angle - 90 # equivalent to angle_to_mid_deg variable
+            error = abs(deviation) 
 
-    if deviation < 5 and deviation > -5: # do not steer if there is a 10-degree error range
-        deviation = 0
-        error = 0
+            if deviation < 5 and deviation > -5: # do not steer if there is a 10-degree error range
+                deviation = 0
+                error = 0
+                data = await steer_alvinn(carUrl+'60')
+
+            elif deviation > 5: # steer right if the deviation is positive
+                data = await steer_alvinn(carUrl+'80')
+
+            elif deviation < -5: # steer left if deviation is negative
+                data = await steer_alvinn(carUrl+'40')
+                
         
-
-    elif deviation > 5: # steer right if the deviation is positive
-        pass
-
-    elif deviation < -5: # steer left if deviation is negative
-        pass
-   
-    if num%10 == 0:
-        print(deviation)
+    
 
 
-    lastError = error
-    lastTime = time.time()
+        lastError = error
+        lastTime = time.time()
+        num+=1
 
 
-    heading_image = display_heading_line(lane_lines_image,steering_angle)
-    cv2.imshow("heading image",heading_image)
+        heading_image = display_heading_line(lane_lines_image,steering_angle)
+        cv2.imshow("heading image",heading_image)
 
-    key = cv2.waitKey(1)
-    if key == 27:
-        break
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+if __name__ == "__main__":
+    asyncio.run(main())
 
 video.release()
 cv2.destroyAllWindows()

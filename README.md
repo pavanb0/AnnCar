@@ -18,6 +18,3 @@ step 2: install IP webcam app on Android smartphone connect to the same network 
 step 3: run this python file with all the dependencies src\newControl\main.py [add the video camera ip and robo car ip]
 
 ![image](https://github.com/pavanb0/AnnCar/assets/96296445/3368ead0-8c6c-42ea-88ee-a8d9380ee403)
-
-<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:7193536565569040384" height="1027" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
-<iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7193537743665172480" height="686" width="504" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
